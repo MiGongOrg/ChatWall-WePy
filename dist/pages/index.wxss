@@ -1,0 +1,3 @@
+@import "./../components/input.wxss";
+@import "./../components/chat.wxss";
+page{height:100%}.indexContainer{height:100%;width:100%;background-color:#372746;background-repeat:no-repeat;background-image:url("http://static.wx.sunbar.cn/images/group/bg@2x.png");background-size:cover}

@@ -1,0 +1,112 @@
+<style lang="less">
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+</style>
+
+<script>
+import wepy from 'wepy'
+import wilddog from './common/wilddog-weapp-all'
+import 'wepy-async-function'
+
+export default class extends wepy.app {
+  config = {
+    pages: [
+      'pages/index'
+    ],
+    window: {
+      backgroundTextStyle: 'light',
+      navigationBarBackgroundColor: '#372746',
+      navigationBarTitleText: 'ChatWall',
+      navigationBarTextStyle: 'black',
+      enablePullDownRefresh: false
+    }
+  }
+  // 全局数据对象
+  globalData = {
+    userInfo: null
+  }
+
+  constructor () {
+    super()
+    this.use('requestfix')
+  }
+
+  onLaunch() {
+    let _this = this
+
+    // 获取用户信息
+    _this.getUserInfo()
+
+    // 野狗云
+    let config = {
+      syncURL: 'https://wd5619279824ctzdha.wilddogio.com',
+      authDomain: 'wd5619279824ctzdha.wilddog.com'
+    }
+    // wilddog 初始化
+    wilddog.initializeApp(config)
+    // Promise 处理用户登陆
+    wilddog.auth().signInWeapp().then(function(user) {
+      console.log(user)
+    }).catch(function(err) {
+      console.log(err)
+    })
+    // 绑定数据
+    _this.ref = wilddog.sync().ref('chats')
+
+    // _this.testAsync()
+  }
+
+  // 添加聊天数据
+  addChat (text) {
+    this.ref.push(text)
+  }
+
+  // 获取聊天数据
+  getChat () {
+    return this.ref
+  }
+
+  sleep (s) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve('promise resolved')
+      }, s * 1000)
+    })
+  }
+
+  async testAsync () {
+    const data = await this.sleep(3)
+    console.log(data)
+  }
+  // 获取用户信息
+  getUserInfo (cb) {
+    let _this = this
+    if (_this.globalData.userInfo) {
+      return _this.globalData.userInfo
+    }
+    wepy.getUserInfo({
+      success (res) {
+        // 性别 0：未知、1：男、2：女
+        _this.globalData.userInfo = res.userInfo
+        cb && cb(res.userInfo)
+      }
+    })
+  }
+
+  onHide () {
+    let _this = this
+    wilddog.sync().goOffline()
+  }
+
+  onShow () {
+    let _this = this
+    wilddog.sync().goOnline()
+  }
+}
+</script>

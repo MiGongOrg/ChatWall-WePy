@@ -1,0 +1,125 @@
+<style lang="less">
+  .inputContainer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+    .footerContent {
+      box-sizing:border-box;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      background-color: #372746;
+      padding: 20rpx;
+    }
+    .addBtn, .faceBtn {
+      image {
+        width: 54rpx;
+        height: 54rpx;
+        display:block;
+        vertical-align: middle;
+      }
+    }
+    .chatContent {
+      input {
+        box-sizing: border-box;
+        height: 68rpx;
+        color: #ffffff;
+        background-color: rgba(255,255,255,0.06);
+        border-radius: 8rpx;
+      }
+    }
+    .sendBtn {
+      button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        line-height: normal;
+        color: #ffffff;
+        height: 68rpx;
+        background-image: linear-gradient(-151deg, #FF9473 0%, #F93058 79%);
+        border-radius: 8rpx;
+        &:active {
+          background-image: linear-gradient(0deg, #d52044 0%, #da3b2e 100%);
+        }
+      }
+    }
+  }
+</style>
+
+<template lang="wxml">
+  <view class="inputContainer">
+    <view class="footerContent">
+      <view class="addBtn">
+        <image src="../images/ic_add.png"></image>
+      </view>
+      <view class="chatContent">
+        <input cursor-spacing="10" confirm-type="send" @confirm="send" @input="input" type="text" value="{{sendVal.message}}" @focus="focus" @blur="blur" @type="input">
+      </view>
+      <view class="faceBtn">
+        <image src="../images/ic_face.png"></image>
+      </view>
+      <view class="sendBtn">
+        <button size="mini" @tap="send">发送</button>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Input extends wepy.component {
+    data = {
+      focusFlag: false,
+      sendVal: {
+        createTime: null,
+        message: null,
+        messageType: 'TEXT',
+        user: {}
+      }
+    }
+    // 事件处理
+    methods = {
+      input (event) {
+        let _this = this
+        _this.sendVal.message = event.detail.value
+      },
+      send () {
+        let _this = this
+        // 判断输入框中是非有内容
+        if (_this.sendVal.message !== null) {
+          // 创建时间
+          _this.sendVal.createTime = parseInt(new Date().getTime() / 1000)
+          _this.$emit('addChat', _this.sendVal)
+
+          // 清空输入框
+          _this.sendVal.message = null
+          _this.$apply()
+        } else {
+          wepy.showToast({
+            title: '发送内容不能为空',
+            icon: 'none',
+            duration: 2000
+          })
+        }
+      }
+    }
+    // onLoad
+    onLoad() {
+      let _this = this
+      _this.sendVal.user = _this.$root.$parent.globalData.userInfo
+      _this.$apply()
+      // 同步用户数据
+      let againFtech = setInterval(function() {
+        if (!_this.sendVal.user) {
+          _this.sendVal.user = _this.$root.$parent.globalData.userInfo
+          _this.$apply()
+        } else {
+          clearInterval(againFtech)
+        }
+      }, 500)
+    }
+  }
+</script>

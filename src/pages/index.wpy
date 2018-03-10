@@ -1,0 +1,98 @@
+<style lang="less">
+  page {
+    height: 100%;
+  }
+  .indexContainer {
+    height: 100%;
+    width: 100%;
+    background-color: #372746;
+    background-repeat: no-repeat;
+    background-image: url("http://static.wx.sunbar.cn/images/group/bg@2x.png");
+    background-size: cover;
+  }
+</style>
+
+<template lang="wxml">
+  <view class="indexContainer">
+    <chat :chat.sync="chat"></chat>
+    <chatInput></chatInput>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  // 引入组件
+  import Chat from '../components/chat'
+  import ChatInput from '../components/input'
+
+  export default class Index extends wepy.page {
+    config = {
+      'navigationBarTitleText': 'ChatWall',
+      'navigationBarTextStyle': 'white',
+      'navigationBarBackgroundColor': '#372746'
+    }
+    components = {
+      chat: Chat,
+      chatInput: ChatInput
+    }
+    // 绑定数据
+    data = {
+      chat: []
+    }
+    // 事件处理
+    events = {
+      addChat: (text) => {
+        let _this = this
+        _this.$parent.addChat(text)
+      },
+      delItem: (key) => {
+        let _this = this
+        _this.ref.child(key).remove()
+      }
+    }
+    onLoad() {
+      // 获取聊天数据
+      let _this = this
+      _this.ref = _this.$parent.getChat()
+
+      // 绑定数据
+      _this.ref.bindAsArray(this, 'chat', function(err) {
+        if (err !== null) {
+          console.log(err.message)
+        } else {
+          console.log('数据绑定成功')
+        }
+      })
+
+      // 监听初始化数据与新增数据（最新10条数据）
+      _this.ref.limitToLast(10).on('child_added', function(snapshot, prKey) {
+        let key = snapshot.key()
+        let val = snapshot.val()
+
+        // 格式化加入时间
+        let date = new Date(val.createTime * 1000)
+        val.createTime = date.toLocaleString()
+
+        let newChatItem = {key: key, data: val}
+        _this.chat.push(newChatItem)
+        _this.$apply()
+      }, _this)
+      // 监听删除同步数据
+      _this.ref.on('child_removed', function(snapshot) {
+        let key = snapshot.key()
+        let index = _this.chat.findIndex(function(item, index) {
+          if (item.key === key) {
+            return true
+          }
+          return false
+        })
+        // 判断是否有这条数据
+        if (index >= 0) {
+          // 删除这条数据后同步
+          _this.chat.splice(index, 1)
+          _this.$apply()
+        }
+      }, _this)
+    }
+  }
+</script>

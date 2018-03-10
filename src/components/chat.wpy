@@ -1,0 +1,79 @@
+<style lang="less">
+  .chatContainer {
+    box-sizing: border-box;
+    padding-bottom: 150rpx;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<template lang="wxml">
+  <scroll-view scroll-y="true" scroll-with-animation="true" scroll-top="{{scrollTop}}" class="chatContainer">
+    <repeat for="{{chat}}" item="item" index="index">
+      <chatItem :item="item" :index="index"></chatItem>
+    </repeat>
+  </scroll-view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import ChatItem from './chatItem'
+  import { URLS, HTTP } from '../common'
+
+  export default class Chat extends wepy.component {
+    // 模板初始绑定数据
+    data = {
+      scrollTop: 0,
+      chat: []
+    }
+
+    props = {
+      // 动态传值
+      chat: {
+        type: String,
+        default: 'null'
+      }
+    }
+    // 监听，消息
+    watch = {
+      chat () {
+        const _this = this
+        _this.pageScrollToBottom()
+      }
+    }
+    // 声明页面中将要使用到的组件
+    components = {
+      chatItem: ChatItem
+    }
+    // 获取容器内每个 Item 高度，后设置 scroll-top 使页面滚动到容器底部
+    pageScrollToBottom () {
+      const _this = this
+      wepy.createSelectorQuery().selectAll('.chatItemContent').boundingClientRect(function(rects) {
+        rects.forEach(function(rect) {
+          _this.scrollTop += rect.height
+          _this.$apply()
+        })
+      }).exec()
+    }
+    // 请求数据
+    request (options) {
+      let _this = this
+      let url = URLS.chats
+
+      HTTP.get(url).then((data) => {
+        let chatArr = []
+        // 处理数据
+        for (let item in data) {
+          data[item].id = item
+          chatArr.push(data[item])
+        }
+        _this.chat = chatArr
+        _this.$apply()
+      })
+    }
+    onLoad() {
+      // let _this = this
+      // _this.request()
+    }
+  }
+</script>

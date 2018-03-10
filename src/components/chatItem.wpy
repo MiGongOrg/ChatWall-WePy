@@ -1,0 +1,81 @@
+<style lang="less">
+  .chatItemContent {
+    .createTime {
+      font-size: 20rpx;
+      text-align: center;
+      padding: 20rpx;
+      color: rgba(255,255,255,.8);
+    }
+    .chatContentBox {
+      display: flex;
+    }
+    .userAvatar {
+      padding: 0 20rpx;
+      image {
+        display: block;
+        width: 80rpx;
+        height: 80rpx;
+        border-radius: 50%;
+        border: 4rpx solid rgba(255,255,255,.2);
+        vertical-align: middle;
+      }
+    }
+    .chatContent {
+      font-size: 24rpx;
+      color: rgba(255,255,255,.8);
+    }
+    .deleteBox {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-width:400rpx;
+    }
+    .userName {
+
+    }
+    .chatMsg {
+      display: inline-block;
+      color: #ffffff;
+      font-size: 28rpx;
+      padding: 20rpx;
+      border-radius: 8rpx;
+      margin-top: 10rpx;
+      max-width: 400rpx;
+      background-color: rgba(0,0,0,.3);
+    }
+  }
+</style>
+
+<template lang="wxml">
+  <view class="chatItemContent">
+    <view class="createTime">{{item.data.createTime}}</view>
+    <view class="chatContentBox">
+      <view class="userAvatar"><image src="{{item.data.user.avatarUrl}}"></image></view>
+      <view class="chatContent">
+        <view class="deleteBox">
+          <view class="userName">{{item.data.user.nickName}}</view>
+          <view class="delBtn" data-key="{{item.key}}" @tap="deleteItem">删除</view>
+        </view>
+        <view class="chatMsg">{{item.data.message}}</view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class ChatItem extends wepy.component {
+    // 事件处理
+    methods = {
+      deleteItem (event) {
+        let _this = this
+        let key = event.target.dataset.key
+        console.log(key)
+        _this.$emit('delItem', key)
+      }
+    }
+    // 页面的生命周期函数
+    onLoad () {}
+  }
+</script>

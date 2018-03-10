@@ -1,0 +1,42 @@
+
+  <view class="indexContainer">
+    
+  <scroll-view scroll-y="true" scroll-with-animation="true" scroll-top="{{$chat$scrollTop}}" class="chatContainer">
+    <block wx:for="{{$chat$chat}}" wx:for-index="$chat$index" wx:for-item="$chat$item" wx:key="$chat$key">
+      
+  <view class="chatItemContent">
+    <view class="createTime">{{$chat$item.data.createTime}}</view>
+    <view class="chatContentBox">
+      <view class="userAvatar"><image src="{{$chat$item.data.user.avatarUrl}}"/></view>
+      <view class="chatContent">
+        <view class="deleteBox">
+          <view class="userName">{{$chat$item.data.user.nickName}}</view>
+          <view class="delBtn" data-key="{{$chat$item.key}}" bindtap="$chat$chatItem$deleteItem" data-com-index="{{$chat$index}}">删除</view>
+        </view>
+        <view class="chatMsg">{{$chat$item.data.message}}</view>
+      </view>
+    </view>
+  </view>
+
+    </block>
+  </scroll-view>
+
+    
+  <view class="inputContainer">
+    <view class="footerContent">
+      <view class="addBtn">
+        <image src="../images/ic_add.png"/>
+      </view>
+      <view class="chatContent">
+        <input cursor-spacing="10" confirm-type="send" bindconfirm="$chatInput$send" bindinput="$chatInput$input" type="text" value="{{$chatInput$sendVal.message}}" bindfocus="$chatInput$focus" bindblur="$chatInput$blur" bindtype="$chatInput$input"/>
+      </view>
+      <view class="faceBtn">
+        <image src="../images/ic_face.png"/>
+      </view>
+      <view class="sendBtn">
+        <button size="mini" bindtap="$chatInput$send">发送</button>
+      </view>
+    </view>
+  </view>
+
+  </view>

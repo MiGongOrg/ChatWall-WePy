@@ -1,0 +1,2 @@
+@import "./chatItem.wxss";
+.chatContainer{box-sizing:border-box;padding-bottom:150rpx;width:100%;height:100%}
